@@ -1,16 +1,19 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
+
+	FileManagement "github.com/Foren-Ken/Forensic-Racoon/pkg/FileManagement"
 )
 
 func main() {
-	typeFlag := flag.String("t", "directory", "Specify either \"Directory\" or \"File\".")
-	//Used to determine if the entire directory or just a singular file is being tested.
+	// typeFlag := flag.String("t", "directory", "Specify either \"Directory\" or \"File\".")
+	// Used to determine if the entire directory or just a singular file is being tested.
 
-	outputFlag := flag.String("o", ".", "Specify output location.")
+	// outputFlag := flag.String("o", ".", "Specify output location.")
 	// Stores location of output file
 
 	flag.Parse()
@@ -18,16 +21,25 @@ func main() {
 
 	userFilePath := flag.Args()
 
-	if len(userFilePath) < 1 {
-		fmt.Println("Error: Filepath is required")
-		fmt.Println("The following syntax is expected: .\\ PATH\\TO\\FILE")
+	if len(userFilePath) > 1 {
+		fmt.Println("Too many arguments!")
+		fmt.Println("Please use only one directory as an argument.")
+		fmt.Println("\"./forensic-racoon PATH/TO/FILE\" with any amount of optional flags. ")
 		os.Exit(1)
 	}
-	doesFileExist, err := os.Stat(userFilePath[0])
 
-	fmt.Println(doesFileExist)
+	filePointer, err := FileManagement.OpenFile(userFilePath)
+
 	fmt.Println(err)
-	fmt.Println(*outputFlag)
-	fmt.Println(*typeFlag)
+	fmt.Println(*filePointer)
+
+	var scanner *bufio.Scanner = bufio.NewScanner(filePointer)
+
+	var lineChecker int = 1
+
+	for scanner.Scan() {
+		fmt.Printf("Line %d: %s\n", lineChecker, scanner.Text())
+		lineChecker++
+	}
 
 }
